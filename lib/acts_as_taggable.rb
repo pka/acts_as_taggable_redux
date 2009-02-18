@@ -19,7 +19,7 @@ module ActiveRecord
 
       module SingletonMethods
         # Pass a tag string, returns taggables that match the tag string.
-        # 
+        #
         # Options:
         #   :match - Match taggables matching :all or :any of the tags, defaults to :any
         #   :user  - Limits results to those owned by a particular user
@@ -51,7 +51,7 @@ module ActiveRecord
         end
 
         # Pass a tag string, returns taggables that match the tag string for a particular user.
-        # 
+        #
         # Options:
         #   :match - Match taggables matching :all or :any of the tags, defaults to :any
         def find_tagged_with_by_user(tags, user, options = {})
@@ -68,7 +68,7 @@ module ActiveRecord
         # :order - SQL Order how to order the tags. Defaults to "count DESC, tags.name".
         # :match - Match taggables matching :all or :any of the tags, defaults to :any
         def find_related_tags(tags, options = {})
-          #duplicated work, the tags are parsed twice. I need to elimidate this by making find_tagged_with 
+          #duplicated work, the tags are parsed twice. I need to elimidate this by making find_tagged_with
           #accept an array of tags and not just a string
           parsed_tags = Tag.parse(tags)
           related_models = find_tagged_with(tags, :match => options.delete(:match))
@@ -102,10 +102,10 @@ AND #{Tagging.table_name}.tag_id = #{Tag.table_name}.id",
 
         def tag_list(user = nil)
           unless user
-            resiult = tags.collect { |tag| tag.name.include?(" ") ? %("#{tag.name}") : tag.name }.join(" ")
+            tags.collect { |tag| tag.name.include?(" ") ? %("#{tag.name}") : tag.name }.join(" ")
           else
             #TODO: make it work if I pass in an int instead of a user object
-            tags.find(:all, :conditions => ['"taggings"."user_id" = ?', user.id]).collect { |tag| tag.name.include?(" ") ? %("#{tag.name}") : tag.name }.uniq.join(" ")
+            tags.all(:conditions => ['taggings.user_id = ?', user.id]).collect { |tag| tag.name.include?(' ') ? %("#{tag.name}") : tag.name }.uniq.join(' ')
           end
         end
 
