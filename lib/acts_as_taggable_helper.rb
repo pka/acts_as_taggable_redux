@@ -8,9 +8,10 @@ module ActsAsTaggableHelper
   #
   # Inspired by http://www.juixe.com/techknow/index.php/2006/07/15/acts-as-taggable-tag-cloud/
   def tag_cloud(options = {})
-    options.assert_valid_keys(:limit, :conditions, :counter_cache, :sort)
-    options.reverse_merge! :limit => 100, :counter_cache => :taggings_count, :sort => :name
+    options.assert_valid_keys(:limit, :conditions, :counter_cache, :show_count, :sort)
+    options.reverse_merge! :limit => 100, :counter_cache => :taggings_count, :show_count => false, :sort => :name
     taggings_count = options.delete(:counter_cache)
+    show_count = options.delete(:show_count)
     sort = options.delete(:sort)
 
     tags = Tag.find(:all, options.merge(:order => "#{taggings_count} DESC")).sort_by(&sort)
@@ -30,7 +31,9 @@ module ActsAsTaggableHelper
     html <<   %(  <ul class="popularity">\n)
     tags.each do |tag|
       html << %(    <li>)
-      html << link_to(tag.name, tag_url(tag), :class => classes[(tag.send(taggings_count) - min) / divisor]) 
+      linktext = tag.name
+      linktext << " (#{tag.send(taggings_count)})" if show_count && tag.send(taggings_count) > 1
+      html << link_to(linktext, tag_url(tag), :class => classes[(tag.send(taggings_count) - min) / divisor]) 
       html << %(</li> \n)
     end
     html <<   %(  </ul>\n)
